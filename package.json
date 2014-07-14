@@ -1,0 +1,7 @@
+{
+   "name":"nodejs-reverse-proxy",
+   "version":"0.0.1",
+   "dependencies":{
+      "http-proxy":"*"
+   }
+}
