@@ -6,8 +6,8 @@ var hosts = require('./config.json');
 
 var proxies = {}
 Object.keys(hosts).forEach(function(host){
-  proxies[host] = new httpProxy.createProxyServer(hosts[host]);
-  proxies[host].on('error',errorHandler);
+  proxies[host+":"+port] = new httpProxy.createProxyServer(hosts[host]);
+  proxies[host+":"+port].on('error',errorHandler);
 });
 
 function errorHandler(err, req, res) {
@@ -19,14 +19,19 @@ function errorHandler(err, req, res) {
 }
 
 function getHostname(req){
-  var host = req.headers.origin.match(/\/\/(.*)$/);
-  return host !== null ? host[1] : null;
+  return req.headers.host;
 }
 
 var server = http.createServer(function (req, res) {
   var host = getHostname(req);
   if(host!==null && proxies.hasOwnProperty(host)){
     proxies[host].web(req, res);
+  }
+  else{
+    res.writeHead(500,{
+      'Content-Type': 'text/plain'
+    });
+    res.end("Invalid host header.");
   }
 });
 
